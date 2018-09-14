@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ILInk资源加载配置管理</title>
+<!-- <script src="http://cdn.static.runoob.com/libs/angular.js/1.4.6/angular.min.js"></script> -->
+<script src="https://cdn.bootcss.com/vue/2.2.2/vue.min.js"></script>
+<script type="text/javascript" src="js/resReload.js"></script>
+</head>
+<body >
+	<div id="resReload">
+		加载资源类型:
+		<select title="selectValue">
+		  <option value="dataReload">数据加载</option>
+		  <option value="fileReload">文件加载</option>
+		</select>
+
+		<ul >
+			<li v-if="dataReload">
+				<label>更新的表(多个表用,分隔)：</label>
+				<input  v-model="tableList" /> <input type="button"  value="选择" onclick="location.href='html/tableList.html'">
+				{{ tableList }}
+			</li>
+			<li v-if="fileReload">
+				<label>更新的文件(Ilink_HOME下的文件或者目录)：</label>
+				<input type="text" v-model="fileList" />
+				{{ fileList }}
+			</li>
+		</ul>
+		<button click="reload">更新</button>
+	</div>
+</body>
+</html>

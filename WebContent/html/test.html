@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Vue 测试实例 - 菜鸟教程(runoob.com)</title>
+<script src="https://cdn.bootcss.com/vue/2.2.2/vue.min.js"></script>
+<script src="https://cdn.bootcss.com/vue-resource/1.5.1/vue-resource.min.js"></script>
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.4.js"></script>
+<script src="http://apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
+<script src="http://apps.bdimg.com/libs/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="js/resReload.js"></script>
+<script type="text/javascript">
+$(function(){
+    $("#dialog").dialog({autoOpen:false}); 
+    $("button[name='bTable']").click(function(){
+    	$( "#dialog" ).dialog( "open" );
+    });
+    
+    /* $("button[name='tj']").click(function(){
+    	$( "#dialog" ).dialog( "close" );
+        <!-- window.location.reload(); -->
+        
+    }); */
+});
+
+function upload(input) {
+	//支持chrome IE10
+	if (window.FileReader) {
+		var file = input.files[0];
+		filename = file.name.split(".")[0];
+		var reader = new FileReader();
+		reader.onload = function() {
+			console.log(this.result)
+			alert(this.result);
+		}
+		reader.readAsText(file, 'gb2312');
+	} 
+	//支持IE 7 8 9 10
+	else if (typeof window.ActiveXObject != 'undefined'){
+		var xmlDoc; 
+		xmlDoc = new ActiveXObject("Microsoft.XMLDOM"); 
+		xmlDoc.async = false; 
+		xmlDoc.load(input.value); 
+		alert(xmlDoc.xml); 
+	} 
+	//支持FF
+	else if (document.implementation && document.implementation.createDocument) { 
+		var xmlDoc; 
+		xmlDoc = document.implementation.createDocument("", "", null); 
+		xmlDoc.async = false; 
+		xmlDoc.load(input.value); 
+		alert(xmlDoc.xml);
+	} else { 
+		alert('error'); 
+	} 
+};
+function openFileIIs(filename){        
+    try{ 
+        var obj=new ActiveXObject("wscript.shell"); 
+        if(obj){ 
+            obj.Run("\""+filename+"\"", 1, false );
+            //obj.run("osk");/*打开屏幕键盘*/
+            //obj.Run('"'+filename+'"'); 
+            obj=null; 
+        } 
+    }catch(e){ 
+        alert("请确定是否存在该盘符或文件"); 
+    } 
+    
+};
+</script>
+
+</head>
+<body>
+	<div id="app" class="modal-body">
+		<label>连接配置：</label>
+		IP: <input v-model="ip" class="form-control"> 
+		端口: <input v-model="port" class="form-control"> 
+		<br>
+		加载资源类型:
+		<!-- <select v-model="selectValue">
+		  <option value="dataReload">数据加载</option>
+		  <option value="fileReload">文件加载</option>
+		</select> -->
+		<input type="checkbox" id="checkbox" v-model="tableChecked"> <label for="checkbox">数据加载</label>
+		<input type="checkbox" id="checkbox" v-model="fileChecked"> <label for="checkbox">文件加载</label>
+		<ul >
+            <li  >
+                <label>更新的表(多个表用,分隔)：</label>
+                <input v-model="tables" placeholder="请输入表名,用逗号分隔……" class="form-control"> <button type="button"  name="bTable" >选择表</button>
+            </li>
+            <li >
+                <label for="filesId">更新的文件(Ilink_HOME下的文件或者目录)：</label>
+                <!-- <input type="text" v-model="fileList" placeholder="编辑我……"/> <input type="button" name="bFile" value="选择文件" onclick="location.href='html/tableList.html'"> -->
+            	<textarea v-model="fileList" placeholder="输入文件路径,用逗号分隔..."> </textarea>
+            	<!-- <input type="file" v-model="fileList"  onchange="upload(this)" /> -->
+            </li>
+        </ul>
+		
+		<button @click="reload">更新</button>
+		
+		<div id="dialog" title="选择更新的表">
+		    <form name="tableForm">
+		    	<div>
+			    	<label>渠道相关表：</label> <input type="checkbox" id="channelCheack" v-model="channelAll" @change="channelAllChecked()"> <br>
+			    	<input type="checkbox" id="tab1" value="PLAT_CHANNEL_INFO" v-model="chanelTables" /> <label for="tab1">PLAT_CHANNEL_INFO</label> <br>
+		    		<input type="checkbox" id="tab2" value="PLAT_ADAPTER_PARAM" v-model="chanelTables" /> <label for="tab2">PLAT_ADAPTER_PARAM</label> <br>
+		    		<input type="checkbox" id="tab3" value="PLAT_CHANNEL_CTRL" v-model="chanelTables" /> <label for="tab3">PLAT_CHANNEL_CTRL</label> <br>
+		    		<input type="checkbox" id="tab4" value="PLAT_IN_TRANCD_MAPPING" v-model="chanelTables" /> <label for="tab4">PLAT_IN_TRANCD_MAPPING</label> <br>
+		    		<input type="checkbox" id="tab5" value="PLAT_TRAN_INFO" v-model="chanelTables" /> <label for="tab5">PLAT_TRAN_INFO</label> <br>
+		    		<input type="checkbox" id="tab6" value="PLAT_BIZ_SUBSYS_INFO" v-model="chanelTables" /> <label for="tab6">PLAT_BIZ_SUBSYS_INFO</label> <br>
+	    		</div>
+	    		<div>
+			    	<label>业务相关表：</label> <input type="checkbox" id="BusCheack" v-model="BusAll" @change="BusAllChecked()"> <br>
+		    		<input type="checkbox" id="tab7" value="PLAT_MONITOR_RULE" v-model="busTables" /> <label for="tab7">PLAT_MONITOR_RULE</label> <br>
+	    		</div>
+	    		<div>
+			    	<label>路由相关表：</label> <input type="checkbox" id="DisCheack" v-model="DisAll" @change="DisAllChecked()"> <br>
+		    		<input type="checkbox" id="tab7" value="PLAT_BIZ_CTRL" v-model="disTables" /> <label for="tab7">PLAT_BIZ_CTRL</label> <br>
+		    		<input type="checkbox" id="tab8" value="PLAT_TRAN_BUFQUEUE" v-model="disTables" /> <label for="tab8">PLAT_TRAN_BUFQUEUE</label> <br>
+		    		<input type="checkbox" id="tab9" value="PLAT_TRAN_INFO" v-model="disTables" /> <label for="tab9">PLAT_TRAN_INFO</label> <br>
+	    		</div>
+		    <input type="button" name="commitTable" @click="submitTable" value="提交"/>
+		    <!-- <button name="tj" @click="submitTable">提交</button> -->
+		    </form>    
+		</div>
+	</div>
+
+	<script>
+	new Vue({
+		el : '#app',
+		data : {
+			fileList : '',
+			selectValue : 'dataReload',
+			tableChecked : false,
+			fileChecked : false,
+			channelAll : false,
+			BusAll : false,
+			DisAll : false,
+			tables : [],
+			channelList : ["PLAT_CHANNEL_INFO","PLAT_ADAPTER_PARAM","PLAT_CHANNEL_CTRL","PLAT_IN_TRANCD_MAPPING","PLAT_TRAN_INFO","PLAT_BIZ_SUBSYS_INFO"],
+			busList : ["PLAT_MONITOR_RULE"],
+			disList : ["PLAT_BIZ_CTRL", "PLAT_TRAN_BUFQUEUE", "PLAT_TRAN_INFO"],
+			chanelTables : [],
+			busTables : [],
+			disTables : [],
+			ip : '127.0.0.1',
+			port : '7001',
+		},
+		methods : {
+			  reload : function(){
+				if(this.tableChecked){
+					if(this.tables = []){
+						alert("请选择表");
+					}
+				}
+				if(this.fileChecked){
+					if(this.fileList === ''){
+						alert("请选择文件");
+					}
+				}
+				//var url = '/ILink_ReloadRes/ReloadRes?tableList="'+this.tables+'",fileList="'+this.fileList+'"';
+				var url = '/ILink_ReloadRes/ReloadRes?';
+				if(this.tables != []){
+					url = url + 'tableList=' + this.tables+ '&';
+				}
+				if(this.fileList != ''){
+					url = url + 'fileList=' + this.fileList+ '&';
+				}
+				url = url + 'IP=' + this.ip + '&PORT=' + this.port;
+				console.info(url);
+				
+		        this.$http.get(url).then(
+			        function(response){
+			            console.info(response);
+			            alert('更新成功!');
+		        },function(response){
+		            console.info(response);
+		        });
+			},
+			
+			channelAllChecked: function() {
+				if (this.channelAll) {
+					this.chanelTables = this.channelList
+				}else {
+					this.chanelTables = []
+				}
+			},
+			BusAllChecked: function() {
+				if (this.BusAll) {
+					this.busTables = this.busList
+				} else {
+					this.busTables = []
+				}
+			},
+			DisAllChecked: function() {
+				if (this.DisAll) {
+					this.disTables = this.disList
+				} else {
+					this.disTables = []
+				}
+			},
+			 submitTable: function() {
+				 console.info(this.chanelTables);
+				 console.info(this.busTables);
+				 console.info(this.disTables);
+				this.tables = this.chanelTables,
+				this.tables = this.tables.concat(this.busTables),
+				this.tables = this.tables.concat(this.disTables),
+				$( "#dialog" ).dialog( "close" );
+			}, 
+			
+		  }
+	})
+		
+	</script>
+</body>
+</html>
